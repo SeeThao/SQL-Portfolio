@@ -63,13 +63,13 @@ VALUES
 SELECT *
 FROM fortune_companies;
 
--- Which companies do not offer healthcare benefits?
+# Which companies do not offer healthcare benefits?
 
 SELECT company_name, industry, healthcare_benefits
 FROM fortune_companies
 WHERE healthcare_benefits=0;
 
--- Which company in healthcare offers maternity leave for 6 weeks and more or at least 17 days off?
+# Which company in healthcare offers maternity leave for 6 weeks and more or at least 17 days off?
 
 SELECT company_name, industry, maternity_leave_weeks, paid_time_off_days
 FROM fortune_companies
@@ -77,25 +77,24 @@ WHERE industry='Healthcare'
 AND maternity_leave_weeks>=6
 AND paid_time_off_days>=17;
 
--- Of all the companies, which brings in the most revenue in total?
+# Of all the companies, which brings in the most revenue in total?
 
 SELECT company_name, industry, revenue
 FROM fortune_companies
 ORDER BY (revenue) DESC;
 
--- What is the average revenue of all manufacturing companies totaled to? 
+# What is the average revenue of all manufacturing companies totaled to? 
 
 SELECT ROUND(AVG(revenue),1) AS avg_revenue_billions, industry
 FROM fortune_companies
 WHERE industry='Manufacturing';
-
--- Which retail company has the most employees?
+# Which retail company has the most employees?
 
 SELECT MAX(employees), company_name, industry
 FROM fortune_companies
 WHERE industry='Retail';
 
--- Which company has the best employee retention based on average employee tenure?
+# Which company has the best employee retention based on average employee tenure?
 
 SELECT company_name, avg_employee_tenure,
 CASE WHEN avg_employee_tenure>=7.5 THEN "Great retention"
@@ -106,7 +105,7 @@ END AS Employee_retention
 FROM fortune_companies
 ORDER BY avg_employee_tenure DESC;
 
--- Which companies have made over 300 in revenue total?
+# Which companies have made over 300 billion in revenue total?
 
 SELECT SUM(revenue) AS total_profit, company_name
 FROM fortune_companies
