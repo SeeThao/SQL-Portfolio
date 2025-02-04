@@ -60,56 +60,52 @@ VALUES
 
 # Analysis
 
+-- 1.	Basic Query to check data
 SELECT *
 FROM fortune_companies;
 
-# Which companies do not offer healthcare benefits?
-
+-- 2.	Which companies do not offer healthcare benefits?
 SELECT company_name, industry, healthcare_benefits
 FROM fortune_companies
 WHERE healthcare_benefits=0;
 
-# Which company in healthcare offers maternity leave for 6 weeks and more or at least 17 days off?
-
+-- 3.	Which company in healthcare offers maternity leave weeks of 6 weeks and more and at least 17 days off?
 SELECT company_name, industry, maternity_leave_weeks, paid_time_off_days
 FROM fortune_companies
 WHERE industry='Healthcare'
 AND maternity_leave_weeks>=6
-AND paid_time_off_days>=17;
+AND paid_time_off_days>=17; 
 
-# Of all the companies, which brings in the most revenue in total?
-
-SELECT company_name, industry, revenue
+-- 4.	Of all the companies, which company brings in the most revenue in total? 
+SELECT company_name, revenue
 FROM fortune_companies
-ORDER BY (revenue) DESC;
+ORDER BY revenue DESC
+LIMIT 1;
 
-# What is the average revenue of all manufacturing companies totaled to? 
-
-SELECT ROUND(AVG(revenue),1) AS avg_revenue_billions, industry
+-- 5.	What is the AVG revenue that all manufacturing companies make?
+SELECT AVG(revenue) AS avg_revenue
 FROM fortune_companies
 WHERE industry='Manufacturing';
-# Which retail company has the most employees?
 
-SELECT MAX(employees), company_name, industry
+-- 6.	Which retail company has the most employees?
+SELECT company_name, industry, employees
 FROM fortune_companies
-WHERE industry='Retail';
+WHERE industry='Retail'
+LIMIT 1;
 
-# Which company has the best employee retention based on average employee tenure?
-
+-- 7.	Which companies have the best employee retention based on employee tenure?
 SELECT company_name, avg_employee_tenure,
-CASE WHEN avg_employee_tenure>=7.5 THEN "Great retention"
-WHEN avg_employee_tenure >=6.5 THEN "Good retention"
-WHEN avg_employee_tenure >=5.5 THEN "Moderate retention"
-ELSE "Normal retention"
+CASE WHEN avg_employee_tenure>=7.5 THEN 'Great retention'
+WHEN avg_employee_tenure >=6.5 THEN 'Good retention'
+WHEN avg_employee_tenure >=5.5 THEN 'Moderate retention'
+ELSE 'Normal retention'
 END AS Employee_retention
 FROM fortune_companies
 ORDER BY avg_employee_tenure DESC;
 
-# Which companies have made over 300 billion in revenue total?
-
-SELECT SUM(revenue) AS total_profit, company_name
+-- 8.	Which companies have a total revenue greater than 300?
+SELECT company_name, SUM(revenue) AS total_profit
 FROM fortune_companies
-GROUP BY revenue
-HAVING revenue>300
-ORDER BY revenue DESC;
-
+GROUP BY company_name
+HAVING SUM(revenue) > 300
+ORDER BY total_profit DESC;
