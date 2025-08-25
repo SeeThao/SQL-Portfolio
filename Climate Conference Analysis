@@ -1,0 +1,82 @@
+Climate Conference Project
+Database: https://www.db-fiddle.com/f/pxMci1sLL945KHKYvpe9W6/1
+
+Below are 6 queries I created: 2 custom queries and 4 queries involving INNER JOIN, LEFT JOIN, SELF JOIN, and SUBQUERY.
+
+#1 CUSTOM QUERY: Which VIP members in education have been members of the conference since 2005?
+SELECT last_name
+, first_name
+, assoc_type
+, member_since
+FROM vips
+WHERE member_since >= 2005
+AND assoc_type = 'education'
+ORDER BY last_name ASC;
+
+#2 CUSTOM QUERY: How many VIP members from a university attending a workshop are staying at a hotel?
+SELECT COUNT (vips.member_id) AS numb_university_vips
+FROM vips
+INNER JOIN events
+ON vips.event = events.event_id
+	INNER JOIN reservations
+	ON vips.member_id = reservations.member_id
+WHERE vips.association LIKE '%university%'
+AND events.event_type = 'Workshop';
+
+#3 MULTIPLE INNER JOINS: Which VIP members participated in Event 5 and submitted feedback for another speaker? List results alphabetically by last name.
+SELECT g.last_name AS giver_last_name
+, g.first_name AS giver_first_name
+, r.last_name AS receiver_last_name
+, r.first_name AS receiver_first_name
+FROM vips g
+INNER JOIN events e
+ON g.event = e.event_id
+  INNER JOIN vips r
+	ON g.provides_feedback_to = r.member_id
+WHERE e.event_id = 5
+ORDER BY g.last_name ASC;
+
+#4 LEFT JOIN: Show all VIP members along with their hotel name, hotel address, and welcome RSVP status, including those who have not yet made a reservation.
+SELECT vips.member_id
+, vips.last_name
+, vips.first_name
+, hotels.hotel_name
+, hotels.address
+, r.welcome_rsvp
+FROM vips
+LEFT JOIN reservations r
+ON vips.member_id = r.member_id
+	LEFT JOIN hotels
+  ON r.hotel = hotels.hotel_id
+ORDER BY r.welcome_rsvp;
+
+#5 INNER JOIN & SUBQUERY: Which VIP members are attending a climate change panel and are staying in Marriott hotel? (NEW VERSION)
+SELECT vips.member_id
+, vips.last_name
+, vips.first_name
+, events.event_name
+, events.event_type
+FROM vips
+INNER JOIN events
+ON vips.event = events.event_id
+WHERE events.event_type = 'Panel'
+	AND events.event_name LIKE '%Climate Change%'
+    AND vips.member_id IN (
+      SELECT r.member_id
+      FROM reservations r
+        INNER JOIN hotels h
+      	ON r.hotel = h.hotel_id
+      WHERE h.hotel_name = 'Marriott'
+      );
+
+#6 SELF JOIN: Which VIP members submitted feedback for their peers after attending their sessions?
+SELECT g.last_name AS giver_last_name
+, g.first_name AS giver_first_name
+, g.provides_feedback_to AS provides_feedback_to
+, r.last_name AS receip_last_name
+, r.first_name AS receip_first_name
+FROM vips AS g
+INNER JOIN vips AS r
+ON g.provides_feedback_to = r.member_id
+WHERE g.provides_feedback_to IS NOT NULL;
+
