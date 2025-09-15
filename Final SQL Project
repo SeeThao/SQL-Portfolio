@@ -1,0 +1,140 @@
+SQL Final Project – Chinook Database
+
+I worked with the Chinook Database, a sample relational database that represents a digital music store. It includes tables for:
+Customers (who make purchases)
+Employees (sales agents and managers)
+Invoices & Invoice Items (purchase records)
+Tracks, Albums, Artists, Media Types, and Genres (the music catalog)
+Playlists (curated music lists)
+
+The database provides a realistic way to practice SQL joins, filtering, grouping, and aggregation while answering real-world business questions.
+
+My goal was to practice working with joins, filtering, grouping, and aggregation to answer business-style questions.
+
+Core Queries
+1. Customers outside the USA
+SELECT FirstName, LastName, CustomerId, Country
+FROM chinook.Customers
+WHERE Country <> 'USA';
+
+2. Customers from Brazil
+SELECT *
+FROM chinook.Customers
+WHERE Country = 'Brazil';
+
+3. Invoices from Brazilian customers
+SELECT inv.InvoiceId, inv.InvoiceDate, cust.FirstName, cust.LastName, inv.BillingCountry
+FROM chinook.Invoices inv
+LEFT JOIN chinook.Customers cust
+  ON inv.CustomerId = cust.CustomerId
+WHERE inv.BillingCountry = 'Brazil';
+
+4. Employees who are Sales Support Agents
+SELECT *
+FROM chinook.Employees
+WHERE Title = 'Sales Support Agent';
+
+5. Unique list of billing countries
+SELECT DISTINCT BillingCountry
+FROM chinook.Invoices;
+
+6. Invoices associated with each Sales Agent
+SELECT inv.InvoiceId, emp.LastName, emp.FirstName, emp.Title
+FROM chinook.Employees emp
+JOIN chinook.Customers cust ON cust.SupportRepId = emp.EmployeeId
+JOIN chinook.Invoices inv ON inv.CustomerId = cust.CustomerId
+WHERE emp.Title LIKE '%Agent%';
+
+7. Invoice totals with customer and sales agent details
+SELECT inv.Total, cust.FirstName, cust.LastName, cust.Country,
+       emp.FirstName AS AgentFirstName, emp.LastName AS AgentLastName
+FROM chinook.Invoices inv
+JOIN chinook.Customers cust ON inv.CustomerId = cust.CustomerId
+JOIN chinook.Employees emp ON cust.SupportRepId = emp.EmployeeId;
+
+8. Number of invoices in 2009
+SELECT COUNT(*) AS Invoices_in_2009
+FROM chinook.Invoices
+WHERE InvoiceDate BETWEEN '2009-01-01' AND '2009-12-31';
+
+9. Total sales in 2009
+SELECT SUM(Total) AS TotalSales_2009
+FROM chinook.Invoices
+WHERE InvoiceDate BETWEEN '2009-01-01' AND '2009-12-31';
+
+10. Tracks purchased with invoice line IDs
+SELECT t.Name AS Track_Name, ii.InvoiceLineId
+FROM chinook.Invoice_items ii
+JOIN chinook.Tracks t ON ii.TrackId = t.TrackId;
+
+11. Purchased track name with artist
+SELECT ar.Name AS Artist, t.Name AS Track, ii.InvoiceLineId
+FROM chinook.Invoice_items ii
+LEFT JOIN chinook.Tracks t ON ii.TrackId = t.TrackId
+INNER JOIN chinook.Albums a ON a.AlbumId = t.AlbumId
+LEFT JOIN chinook.Artists ar ON ar.ArtistId = a.ArtistId;
+
+12. Tracks with album, media type, and genre
+SELECT t.Name AS Track, a.Title AS Album, m.Name AS MediaType, g.Name AS Genre
+FROM chinook.Tracks t
+JOIN chinook.Albums a ON a.AlbumId = t.AlbumId
+JOIN chinook.Media_Types m ON m.MediaTypeId = t.MediaTypeId
+JOIN chinook.Genres g ON g.GenreId = t.GenreId;
+
+13. Total sales made by each sales agent
+SELECT emp.FirstName, emp.LastName, 
+       ROUND(SUM(inv.Total), 2) AS Total_Sales
+FROM chinook.Employees emp
+JOIN chinook.Customers cust ON cust.SupportRepId = emp.EmployeeId
+JOIN chinook.Invoices inv ON inv.CustomerId = cust.CustomerId
+WHERE emp.Title = 'Sales Support Agent'
+GROUP BY emp.FirstName, emp.LastName;
+
+14. Most purchased media type in the USA
+SELECT m.Name AS MediaType, COUNT(*) AS Purchases
+FROM chinook.Customers c
+JOIN chinook.Invoices i ON c.CustomerId = i.CustomerId
+JOIN chinook.Invoice_items ii ON i.InvoiceId = ii.InvoiceId
+JOIN chinook.Tracks t ON ii.TrackId = t.TrackId
+JOIN chinook.Media_Types m ON t.MediaTypeId = m.MediaTypeId
+WHERE c.Country = 'USA'
+GROUP BY m.Name
+ORDER BY Purchases DESC;
+
+Additional Questions I Explored:
+
+These were queries I created myself to dig deeper into the Chinook data:
+
+1. Rock genre tracks sold in Germany
+SELECT COUNT(*) AS RockTracks_Sold, inv.BillingCountry
+FROM chinook.Invoices inv
+JOIN chinook.Invoice_items ii ON inv.InvoiceId = ii.InvoiceId
+JOIN chinook.Tracks t ON ii.TrackId = t.TrackId
+JOIN chinook.Genres g ON t.GenreId = g.GenreId
+WHERE g.Name = 'Rock'
+  AND inv.BillingCountry = 'Germany';
+
+2. Most purchased media type in the US
+SELECT m.Name AS MediaType, COUNT(*) AS Purchases
+FROM chinook.Customers c
+JOIN chinook.Invoices i ON c.CustomerId = i.CustomerId
+JOIN chinook.Invoice_items ii ON i.InvoiceId = ii.InvoiceId
+JOIN chinook.Tracks t ON ii.TrackId = t.TrackId
+JOIN chinook.Media_Types m ON t.MediaTypeId = m.MediaTypeId
+WHERE c.Country = 'USA'
+GROUP BY m.Name
+ORDER BY Purchases DESC;
+
+3. Albums with the most tracks
+SELECT a.Title, COUNT(t.TrackId) AS Track_amount
+FROM chinook.Albums a
+JOIN chinook.Tracks t ON a.AlbumId = t.AlbumId
+GROUP BY a.Title
+ORDER BY Track_amount DESC;
+
+Key Takeaways:
+
+Practiced filtering with WHERE, BETWEEN, <>, and pattern matching.
+Learned how to use INNER JOIN, LEFT JOIN, and multiple-table joins.
+Gained experience with aggregate functions like SUM, COUNT, and ROUND.
+Explored real-world style questions about sales performance, customer behavior, and product trends.
